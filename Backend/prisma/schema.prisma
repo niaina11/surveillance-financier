@@ -1,0 +1,265 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  AGENT
+}
+
+enum TypeOperation {
+  ENCAISSEMENT
+  DECAISSEMENT
+  TRANSFERT
+}
+
+enum StatutDemande {
+  EN_ATTENTE
+  VALIDEE
+  REFUSEE
+}
+
+enum StatutAlerte {
+  NON_LUE
+  LUE
+  TRAITEE
+}
+
+enum StatutUser {
+  EN_ATTENTE
+  APPROUVE
+  REJETE
+}
+
+model Utilisateur {
+  id_utilisateur String     @id @default(cuid())
+  nom            String
+  prenom         String
+  email          String     @unique
+  telephone      String?    @unique
+  mot_de_passe   String
+  statut         StatutUser @default(EN_ATTENTE)
+  role           Role
+
+  id_agence String?
+  agence    Agence? @relation(fields: [id_agence], references: [id_agence])
+
+  operations    Operation[]    @relation("AgentOperation")
+  demandes      Demande[]      @relation("AgentDemande")
+  journalAudits JournalAudit[]
+  notifications Notification[]
+  // demandesOperationAgent DemandeOperation[] @relation("DemandesOperationAgent")
+
+  // demandesOperationAdmin DemandeOperation[] @relation("DemandesOperationAdmin")
+  participations   ParticipantConversation[]
+  messages_envoyes Message[]
+
+  createdAt DateTime @default(now())
+}
+
+model Agence {
+  id_agence String @id @default(cuid())
+  nom       String
+  adresse   String
+  telephone String
+
+  utilisateur   Utilisateur[]
+  solde         Solde?
+  parametre     ParametreAgence?
+  operations    Operation[]
+  demandes      Demande[]
+  alertes       Alerte[]
+  journalAudits JournalAudit[] // ✅ déjà bon
+
+  createdAt DateTime @default(now())
+}
+
+model Solde {
+  id_solde         String   @id @default(cuid())
+  montant_actuel   Float    @default(0)
+  date_mise_a_jour DateTime @updatedAt
+
+  id_agence String @unique
+  agence    Agence @relation(fields: [id_agence], references: [id_agence])
+}
+
+model ParametreAgence {
+  id_parametre  String @id @default(cuid())
+  fonds_minimum Float  @default(10000)
+  fonds_maximum Float  @default(1000000)
+  seuil_alerte  Float  @default(50000)
+
+  id_agence String @unique
+  agence    Agence @relation(fields: [id_agence], references: [id_agence])
+}
+
+model Operation {
+  id_operation   String   @id @default(cuid())
+  type_operation String
+  montant        Float
+  description    String?
+  date_operation DateTime @default(now())
+  nom_client     String
+  prenom_client  String
+  numero_client  String?
+
+  id_agent String
+  agent    Utilisateur @relation("AgentOperation", fields: [id_agent], references: [id_utilisateur])
+
+  id_agence String
+  agence    Agence @relation(fields: [id_agence], references: [id_agence])
+
+  alertes Alerte[]
+
+  createdAt DateTime @default(now())
+  // demandeOperation DemandeOperation[]
+}
+
+model Demande {
+  id_demande      String        @id @default(cuid())
+  description     String
+  montant_demande Float
+  date_demande    DateTime      @default(now())
+  statut          StatutDemande @default(EN_ATTENTE)
+
+  id_agent String
+  agent    Utilisateur @relation("AgentDemande", fields: [id_agent], references: [id_utilisateur])
+
+  id_agence String
+  agence    Agence @relation(fields: [id_agence], references: [id_agence])
+
+  createdAt DateTime @default(now())
+}
+
+model Alerte {
+  id_alerte     String   @id @default(cuid())
+  type_alerte   String
+  message       String
+  date_creation DateTime @default(now())
+  statut        String
+
+  id_agence String
+  agence    Agence @relation(fields: [id_agence], references: [id_agence])
+
+  id_operation String?
+  operation    Operation? @relation(fields: [id_operation], references: [id_operation])
+
+  createdAt DateTime @default(now())
+}
+
+model JournalAudit {
+  id_journal  String   @id @default(cuid())
+  action      String
+  description String?
+  date_action DateTime @default(now())
+  module      String
+
+  id_utilisateur String
+  utilisateur    Utilisateur @relation(fields: [id_utilisateur], references: [id_utilisateur])
+
+  id_agence String?
+  agence    Agence? @relation(fields: [id_agence], references: [id_agence])
+}
+
+model Notification {
+  id_notification String           @id @default(cuid())
+  titre           String
+  message         String
+  type            TypeNotification
+  lu              Boolean          @default(false)
+  id_utilisateur  String
+  id_operation    String?
+  id_alerte       String?
+  createdAt       DateTime         @default(now())
+
+  utilisateur Utilisateur @relation(fields: [id_utilisateur], references: [id_utilisateur])
+}
+
+model Conversation {
+  id_conversation String                       @id @default(cuid())
+  type            String                    @default("PRIVE")
+  nom             String?
+  created_at      DateTime                  @default(now())
+  participants    ParticipantConversation[]
+  messages        Message[]
+}
+
+model ParticipantConversation {
+  id              String          @id @default(cuid())
+  id_conversation String
+  id_utilisateur  String
+  created_at      DateTime     @default(now())
+  conversation    Conversation @relation(fields: [id_conversation], references: [id_conversation])
+  utilisateur     Utilisateur  @relation(fields: [id_utilisateur], references: [id_utilisateur])
+}
+
+model Message {
+  id_message      String          @id @default(cuid())
+  id_conversation String
+  id_expediteur   String
+  contenu         String?
+  fichier_url     String?
+  fichier_nom     String?
+  fichier_type    String?
+  lu              Boolean      @default(false)
+  created_at      DateTime     @default(now())
+  conversation    Conversation @relation(fields: [id_conversation], references: [id_conversation])
+  expediteur      Utilisateur  @relation(fields: [id_expediteur], references: [id_utilisateur])
+}
+
+enum TypeNotification {
+  OPERATION
+  ALERTE
+  CREATION
+  MODIFICATION
+}
+
+// enum TypeDemandeOperation {
+//   MODIFICATION
+//   SUPPRESSION
+// }
+
+// enum StatutDemandeOperation {
+//   EN_ATTENTE
+//   APPROUVEE
+//   REFUSEE
+// }
+
+// model DemandeOperation {
+//   id_demande String @id @default(cuid())
+
+//   id_operation String
+//   operation    Operation @relation(fields: [id_operation], references: [id_operation], onDelete: Cascade)
+
+//   id_agent String
+//   agent    Utilisateur @relation("DemandesOperationAgent", fields: [id_utilisateur], references: [id_utilisateur])
+
+//   type_demande TypeDemandeOperation
+
+//   ancien_montant       Float?
+//   ancienne_description String?
+//   nouveau_montant      Float?
+//   nouvelle_description String?
+
+//   statut   StatutDemandeOperation @default(EN_ATTENTE)
+//   id_admin String?
+//   admin    Utilisateur?           @relation("DemandesOperationAdmin", fields: [id_admin], references: [id_utilisateur])
+
+//   motif_refus String?
+
+//   date_demande    DateTime  @default(now())
+//   date_validation DateTime?
+
+//   createdAt DateTime @default(now())
+//   updatedAt DateTime @updatedAt
+// }
