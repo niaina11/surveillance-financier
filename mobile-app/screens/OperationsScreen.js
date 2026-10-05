@@ -371,12 +371,6 @@ export default function OperationsScreen() {
       </View>
 
       <ScrollView contentContainerStyle={styles.scroll}>
-        {/* {
-          error && (
-            <Text style={{ color: 'red', marginBottom: 10 }}>
-              {error.Error || error.message || 'Une erreur est survenue'}
-            </Text>)
-        } */}
         {ops.map((op) => (
           <View key={op.id_operation} style={styles.opCard}>
             <View style={styles.opRow}>
@@ -414,62 +408,136 @@ export default function OperationsScreen() {
       <Modal visible={modalAjout} animationType="slide" transparent>
         <View style={styles.modalOverlay}>
           <View style={styles.modalBox}>
+
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>Nouvelle Opération</Text>
+
               <TouchableOpacity onPress={() => setModalAjout(false)}>
                 <Text style={styles.closeBtn}>✕</Text>
               </TouchableOpacity>
             </View>
-            {error && (
-              <Text style={{ color: 'red', marginBottom: 10 }}>
-                {error}
-              </Text>
-            )}
-            <Text style={styles.fieldLabel}>Type</Text>
-            <View style={styles.typeRow}>
-              {['DECAISSEMENT', 'ENCAISSEMENT', 'TRANSFERT'].map((t) => (
-                <TouchableOpacity
-                  key={t} onPress={() => setType(t)}
-                  style={[styles.typeBtn, type === t && {
-                    backgroundColor: t === 'DECAISSEMENT' ? '#dcfce7' : '#fee2e2',
-                    borderColor: t === 'DECAISSEMENT' ? '#27ae60' : '#e74c3c',
-                  }]}
-                >
-                  <Text style={[styles.typeBtnText, { color: type === t ? (t === 'DECAISSEMENT' ? '#27ae60' : '#e74c3c') : '#94a3b8' }]}>
-                    {t}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-            <Text style={styles.fieldLabel}>Montant (Ar)</Text>
-            <TextInput value={montant} onChangeText={setMontant} placeholder="Ex: 1500000" keyboardType="numeric" style={styles.textInput} />
-            <Text style={styles.fieldLabel}>Nom Client </Text>
-            <TextInput value={nomClient} onChangeText={setNomClient} placeholder="Ex: Jean" style={styles.textInput} />
-            <Text style={styles.fieldLabel}>Prénom Client </Text>
-            <TextInput value={prenomClient} onChangeText={setPrenomClient} placeholder="Ex: Dupont" style={styles.textInput} />
-            <Text style={styles.fieldLabel}>Numéro Téléphone</Text>
-            <TextInput value={numero} onChangeText={setNumero} placeholder="Ex: 0340010001" keyboardType="numeric" style={styles.textInput} />
-            <Text style={styles.fieldLabel}>Date</Text>
-            <TouchableOpacity
-              onPress={() => setShow(true)}
-              style={styles.textInput}
-            >
-              <Text>{date.toLocaleDateString('fr-FR')}</Text>
-            </TouchableOpacity>
 
-            {show && (
-              <DateTimePicker
-                value={date}
-                mode="date"
-                display="default"
-                onChange={onChange}
+            <ScrollView
+              showsVerticalScrollIndicator={false}
+              keyboardShouldPersistTaps="handled"
+              contentContainerStyle={{ paddingBottom: 20 }}
+            >
+
+              {error && (
+                <Text style={{ color: 'red', marginBottom: 10 }}>
+                  {error}
+                </Text>
+              )}
+
+              <Text style={styles.fieldLabel}>Type</Text>
+
+              <View style={styles.typeRow}>
+                {['DECAISSEMENT', 'ENCAISSEMENT', 'TRANSFERT'].map((t) => (
+                  <TouchableOpacity
+                    key={t}
+                    onPress={() => setType(t)}
+                    style={[
+                      styles.typeBtn,
+                      type === t && {
+                        backgroundColor:
+                          t === 'DECAISSEMENT' ? '#dcfce7' : '#fee2e2',
+                        borderColor:
+                          t === 'DECAISSEMENT' ? '#27ae60' : '#e74c3c',
+                      },
+                    ]}
+                  >
+                    <Text
+                      style={[
+                        styles.typeBtnText,
+                        {
+                          color:
+                            type === t
+                              ? t === 'DECAISSEMENT'
+                                ? '#27ae60'
+                                : '#e74c3c'
+                              : '#94a3b8',
+                        },
+                      ]}
+                    >
+                      {t}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+
+              <Text style={styles.fieldLabel}>Montant (Ar)</Text>
+              <TextInput
+                value={montant}
+                onChangeText={setMontant}
+                placeholder="Ex: 1500000"
+                keyboardType="numeric"
+                style={styles.textInput}
               />
-            )}
-            <Text style={styles.fieldLabel}>Description</Text>
-            <TextInput value={description} onChangeText={setDescription} placeholder="Motif..." multiline style={[styles.textInput, styles.textArea]} />
-            <TouchableOpacity onPress={handleAjouter} style={styles.saveBtn}>
-              <Text style={styles.saveBtnText}>Enregistrer</Text>
-            </TouchableOpacity>
+
+              <Text style={styles.fieldLabel}>Nom Client</Text>
+              <TextInput
+                value={nomClient}
+                onChangeText={setNomClient}
+                placeholder="Ex: Jean"
+                style={styles.textInput}
+              />
+
+              <Text style={styles.fieldLabel}>Prénom Client</Text>
+              <TextInput
+                value={prenomClient}
+                onChangeText={setPrenomClient}
+                placeholder="Ex: Dupont"
+                style={styles.textInput}
+              />
+
+              <Text style={styles.fieldLabel}>Numéro Téléphone</Text>
+              <TextInput
+                value={numero}
+                onChangeText={setNumero}
+                placeholder="Ex: 0340010001"
+                keyboardType="numeric"
+                style={styles.textInput}
+              />
+
+              <Text style={styles.fieldLabel}>Date</Text>
+
+              <TouchableOpacity
+                onPress={() => setShow(true)}
+                style={styles.textInput}
+              >
+                <Text>{date.toLocaleDateString('fr-FR')}</Text>
+              </TouchableOpacity>
+
+              {show && (
+                <DateTimePicker
+                  value={date}
+                  mode="date"
+                  display="default"
+                  onChange={onChange}
+                />
+              )}
+
+              <Text style={styles.fieldLabel}>Description</Text>
+
+              <TextInput
+                value={description}
+                onChangeText={setDescription}
+                placeholder="Motif..."
+                multiline
+                style={[styles.textInput, styles.textArea]}
+              />
+
+              <TouchableOpacity
+                onPress={handleAjouter}
+                style={styles.saveBtn}
+              >
+                <Text style={styles.saveBtnText}>
+                  Enregistrer
+                </Text>
+              </TouchableOpacity>
+
+            </ScrollView>
+
           </View>
         </View>
       </Modal>

@@ -6,7 +6,7 @@ const token = () => localStorage.getItem('token');
 
 const defaultForm = {
   nom: '', adresse: '', telephone: '',
-  fonds_minimum: '', fonds_maximum: '', seuil_alerte: ''
+  fonds_minimum: '', fonds_maximum: '', seuil_alerte: '',solde: ''
 };
 
 export default function Agences() {
@@ -60,6 +60,7 @@ export default function Agences() {
       fonds_minimum: agence.parametre?.fonds_minimum || '',
       fonds_maximum: agence.parametre?.fonds_maximum || '',
       seuil_alerte: agence.parametre?.seuil_alerte || '',
+      montant_actuel: agence.solde?.montant_actuel || ''
     });
     setError(null);
     setModalForm(true);
@@ -100,6 +101,7 @@ export default function Agences() {
               telephone: formData.telephone,
               fonds_minimum: parseFloat(formData.fonds_minimum),
               fonds_maximum: parseFloat(formData.fonds_maximum),
+              montant_actuel: parseFloat(formData.montant_actuel),
               seuil_alerte: parseFloat(formData.seuil_alerte),
             })
           }
@@ -119,6 +121,7 @@ export default function Agences() {
             telephone: formData.telephone,
             fonds_minimum: parseFloat(formData.fonds_minimum),
             fonds_maximum: parseFloat(formData.fonds_maximum),
+            montant_actuel: parseFloat(formData.montant_actuel),
             seuil_alerte: parseFloat(formData.seuil_alerte),
           })
         });
@@ -308,6 +311,14 @@ export default function Agences() {
                   <input
                     required type="number" name="seuil_alerte" value={formData.seuil_alerte} onChange={handleChange}
                     placeholder="Ex: 10000000"
+                    className="w-full border rounded-lg p-2 text-sm mt-1 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+                  />
+                </div>
+                <div className="col-span-2">
+                  <label className="text-xs font-medium text-gray-600">Solde de l'agence</label>
+                  <input
+                    required type="number" name="montant_actuel" value={formData.montant_actuel} onChange={handleChange}
+                    placeholder="Ex: 25000000"
                     className="w-full border rounded-lg p-2 text-sm mt-1 focus:ring-2 focus:ring-blue-400 focus:outline-none"
                   />
                 </div>

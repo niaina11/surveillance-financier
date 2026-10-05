@@ -31,6 +31,7 @@ exports.creerAgence = async (req, res) => {
             telephone,
             fonds_minimum,
             fonds_maximum,
+            montant_actuel,
             seuil_alerte
         } = req.body;
 
@@ -45,7 +46,9 @@ exports.creerAgence = async (req, res) => {
                 telephone,
 
                 solde: {
-                    create: {}
+                    create: {
+                        montant_actuel: parseFloat(montant_actuel)
+                    }
                 },
 
                 parametre: {

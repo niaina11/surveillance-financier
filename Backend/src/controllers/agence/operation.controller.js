@@ -28,7 +28,6 @@ exports.effectuerOperation = async (req, res) => {
         const montantNum = parseFloat(montant);
         if (isNaN(montantNum) || montantNum <= 0) return error(res, 400, "Montant invalide");
 
-        // Vérification du solde avant DECAISSEMENT ou TRANSFERT
         if (type_operation === 'DECAISSEMENT' || type_operation === 'TRANSFERT') {
             const solde = await prisma.solde.findUnique({ where: { id_agence: agent.id_agence } });
             if (!solde || solde.montant_actuel < montantNum) {
@@ -37,7 +36,6 @@ exports.effectuerOperation = async (req, res) => {
         }
 
         const operation = await prisma.$transaction(async (tx) => {
-            // 1. Créer l'opération
             const newOp = await tx.operation.create({
                 data: {
                     type_operation,

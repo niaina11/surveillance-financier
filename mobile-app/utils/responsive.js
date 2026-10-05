@@ -5,13 +5,10 @@ const { width, height } = Dimensions.get('window');
 const BASE_WIDTH = 375;
 const BASE_HEIGHT = 812;
 
-// Largeur en pourcentage
 export const wp = (percent) => (width * percent) / 100;
 
-// Hauteur en pourcentage
 export const hp = (percent) => (height * percent) / 100;
 
-// Taille de police responsive
 export const rf = (size) => {
   const scale = width / BASE_WIDTH;
   const newSize = size * scale;
